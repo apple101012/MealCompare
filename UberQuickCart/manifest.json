@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "UberQuickCart",
+  "version": "1.0",
+  "description": "Save and manage Uber Eats carts as presets.",
+  "permissions": ["storage", "scripting"],
+  "host_permissions": ["https://*.ubereats.com/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://*.ubereats.com/*"],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "48": "icon.png"
+  }
+}
