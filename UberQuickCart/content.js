@@ -45,22 +45,26 @@ function scrapeCart() {
     }
   }
 
-  // --- Get Cart Items from Cart's <ul> list ---
-  const itemLis = cart.querySelectorAll("ul > li");
+  // --- Get ONLY the first <ul> inside the cart (actual cart items) ---
+  const cartItemList = cart.querySelector("ul"); // This is safe: it's the first UL before "Offers"
+  const itemLis = cartItemList?.querySelectorAll(":scope > li") || [];
   const items = [];
 
   itemLis.forEach((li, index) => {
-    // Try to get item name: Look for a <div> or <span> with recognizable class and readable name
+    // Avoid empty or malformed li
+    if (!li || !li.textContent.includes("$")) return;
+
+    // Try to get item name
     const nameEl = li.querySelector(
       'div[class*="bo"][class*="bp"], span[class*="bo"][class*="bp"]'
     );
     const name = nameEl?.textContent.trim();
 
-    // Try to get the first valid price: match $xx.xx
+    // Try to get the first price in this item block
     const priceMatch = li.textContent.match(/\$\d+(?:\.\d{2})?/);
     const price = priceMatch ? priceMatch[0] : null;
 
-    // Filter out promo banners or empty lines
+    // Ensure the name isn't part of an offer or banner
     if (
       name &&
       price &&
