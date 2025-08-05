@@ -1,0 +1,69 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 16px;
+  width: 300px;
+  background: #f9f9f9;
+  color: #111;
+}
+
+h1 {
+  font-size: 20px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.section {
+  margin-bottom: 24px;
+}
+
+#lastCartContainer {
+  background: #fff;
+  padding: 10px;
+  border-radius: 6px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  font-size: 14px;
+}
+
+ul#presetList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.preset-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border: 1px solid #ddd;
+  padding: 6px 10px;
+  border-radius: 5px;
+  margin-bottom: 6px;
+}
+
+.preset-item .preset-name {
+  flex: 1;
+  font-weight: bold;
+}
+
+.preset-item button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  margin-left: 5px;
+}
+
+.cart-item {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 6px;
+}
+
+.cart-item input {
+  flex: 1;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}

@@ -1,9 +1,13 @@
 {
   "manifest_version": 3,
   "name": "UberQuickCart",
-  "description": "Save and edit Uber Eats cart with a popup.",
   "version": "1.0",
-  "permissions": ["storage", "scripting", "activeTab"],
+  "description": "Save and manage Uber Eats carts easily.",
+  "permissions": ["storage", "scripting"],
+  "host_permissions": ["https://www.ubereats.com/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -14,14 +18,9 @@
   },
   "content_scripts": [
     {
-      "matches": ["*://*.ubereats.com/*"],
+      "matches": ["https://www.ubereats.com/*"],
       "js": ["content.js"],
       "run_at": "document_idle"
     }
-  ],
-  "icons": {
-    "16": "icon.png",
-    "48": "icon.png",
-    "128": "icon.png"
-  }
+  ]
 }

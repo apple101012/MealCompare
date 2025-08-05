@@ -1,37 +1,46 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Edit UberQuickCart</title>
+    <meta charset="UTF-8" />
+    <title>UberQuickCart</title>
     <style>
       body {
-        font-family: sans-serif;
-        padding: 10px;
+        font-family: Arial, sans-serif;
+        margin: 12px;
         width: 300px;
       }
-      textarea,
-      input {
-        width: 100%;
-        margin-bottom: 10px;
-        padding: 6px;
+      .preset-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 6px;
+      }
+      .preset-name {
+        flex-grow: 1;
+        font-weight: bold;
+      }
+      .cart-item {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 4px;
+      }
+      .cart-item input {
+        flex: 1;
+        padding: 4px;
       }
       button {
-        padding: 6px 12px;
-        margin-top: 6px;
-      }
-      label {
-        font-size: 14px;
-      }
-      .item-block {
-        margin-bottom: 14px;
-        border-bottom: 1px solid #ccc;
-        padding-bottom: 10px;
+        cursor: pointer;
       }
     </style>
   </head>
+
   <body>
-    <h2>Edit Cart</h2>
-    <div id="cart-items">Loading...</div>
-    <button id="save">✅ Save Changes</button>
+    <h2>Saved Carts</h2>
+    <ul id="presetList"></ul>
+
+    <hr />
+
+    <div id="lastCartContainer"></div>
 
     <script src="popup.js"></script>
   </body>
