@@ -2,106 +2,122 @@ function log(...args) {
   console.log("[UberQuickCart DEBUG]", ...args);
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  const presetList = document.getElementById("presetList");
-  const lastCartContainer = document.getElementById("lastCartContainer");
+function sanitize(str) {
+  return str.replace(/[^\w\s\-]/g, "_");
+}
 
-  // Load all presets from chrome.storage
+function loadSavedCarts() {
+  log("🔁 Loading saved carts...");
   chrome.storage.local.get(null, (data) => {
-    const keys = Object.keys(data).filter((key) =>
-      key.startsWith("uberquickcart:")
+    const container = document.getElementById("cartList");
+    container.innerHTML = "";
+
+    const keys = Object.keys(data).filter(
+      (k) => k.startsWith("uberquickcart:") && k !== "uberquickcart-last"
     );
 
-    // Display last saved cart
-    const last = data["uberquickcart-last"];
-    if (last) {
-      renderCart(last, lastCartContainer);
+    log("📦 Found keys:", keys);
+
+    if (keys.length === 0) {
+      container.innerHTML = "<p>No saved carts found.</p>";
+      return;
     }
 
-    // List presets (excluding "uberquickcart-last")
-    keys
-      .filter((k) => k !== "uberquickcart-last")
-      .forEach((key) => {
-        const preset = data[key];
-        const li = document.createElement("li");
-        li.className = "preset-item";
+    keys.forEach((key) => {
+      const cart = data[key];
+      log(`📋 Rendering cart for store: ${cart.store}`, cart);
 
-        const name = document.createElement("span");
-        name.className = "preset-name";
-        name.textContent = preset.store;
+      const safeStore = sanitize(cart.store);
 
-        const loadBtn = document.createElement("button");
-        loadBtn.textContent = "✏️";
-        loadBtn.title = "Edit";
-        loadBtn.onclick = () => {
-          renderCart(preset, lastCartContainer);
-        };
+      const block = document.createElement("div");
+      block.className = "cart-block";
 
-        const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "🗑️";
-        deleteBtn.title = "Delete";
-        deleteBtn.onclick = () => {
-          chrome.storage.local.remove(key, () => {
-            li.remove();
-            log("Deleted preset:", key);
-          });
-        };
+      const title = document.createElement("div");
+      title.className = "cart-title";
+      title.textContent = cart.store;
+      block.appendChild(title);
 
-        li.appendChild(name);
-        li.appendChild(loadBtn);
-        li.appendChild(deleteBtn);
-        presetList.appendChild(li);
+      cart.items.forEach((item, i) => {
+        const row = document.createElement("div");
+        row.className = "cart-item-input";
+
+        const nameInput = document.createElement("input");
+        nameInput.type = "text";
+        nameInput.value = item.name;
+        nameInput.className = `item-name-${safeStore}`;
+        nameInput.dataset.index = i;
+
+        const priceInput = document.createElement("input");
+        priceInput.type = "text";
+        priceInput.value = item.price;
+        priceInput.className = `item-price-${safeStore}`;
+        priceInput.dataset.index = i;
+
+        row.appendChild(nameInput);
+        row.appendChild(priceInput);
+        block.appendChild(row);
       });
-  });
 
-  // Save current cart being edited
-  document.getElementById("saveChangesBtn").addEventListener("click", () => {
-    const store = document.getElementById("cartStore").textContent;
-    const items = [];
+      const saveBtn = document.createElement("button");
+      saveBtn.textContent = "💾 Save Changes";
+      saveBtn.className = "save-btn";
+      saveBtn.onclick = () => saveEditedCart(cart.store);
+      block.appendChild(saveBtn);
 
-    document.querySelectorAll(".cart-item").forEach((row) => {
-      const name = row.querySelector('[data-type="name"]').value.trim();
-      const price = row.querySelector('[data-type="price"]').value.trim();
-      if (name && price) items.push({ name, price });
+      const deleteBtn = document.createElement("button");
+      deleteBtn.textContent = "🗑️ Delete";
+      deleteBtn.className = "delete-btn";
+      deleteBtn.onclick = () => deleteCart(cart.store);
+      block.appendChild(deleteBtn);
+
+      container.appendChild(block);
     });
 
-    const updated = {
-      store,
-      items,
-      timestamp: new Date().toISOString(),
-    };
-
-    chrome.storage.local.set(
-      {
-        ["uberquickcart:" + store]: updated,
-        ["uberquickcart-last"]: updated,
-      },
-      () => {
-        log("✅ Saved edited cart:", updated);
-        alert("Changes saved!");
-      }
-    );
-  });
-});
-
-function renderCart(cartData, container) {
-  container.innerHTML = `
-    <p><strong id="cartStore">${cartData.store}</strong></p>
-    <div id="editableCartItems"></div>
-    <button id="saveChangesBtn" style="margin-top: 12px;">💾 Save Changes</button>
-  `;
-
-  const itemContainer = document.getElementById("editableCartItems");
-
-  cartData.items.forEach((item, i) => {
-    const div = document.createElement("div");
-    div.className = "cart-item";
-
-    div.innerHTML = `
-      <input type="text" value="${item.name}" data-index="${i}" data-type="name" />
-      <input type="text" value="${item.price}" data-index="${i}" data-type="price" />
-    `;
-
-    itemContainer.appendChild(div);
+    log("✅ Finished rendering all saved carts.");
   });
 }
+
+function saveEditedCart(store) {
+  const safeStore = sanitize(store);
+  log(`💾 Saving changes for: ${store}`);
+
+  const nameInputs = document.querySelectorAll(`.item-name-${safeStore}`);
+  const priceInputs = document.querySelectorAll(`.item-price-${safeStore}`);
+
+  if (nameInputs.length !== priceInputs.length) {
+    log("❌ Mismatch in input lengths!", { nameInputs, priceInputs });
+    return;
+  }
+
+  const newItems = Array.from(nameInputs).map((input, i) => ({
+    name: input.value.trim(),
+    price: priceInputs[i].value.trim(),
+  }));
+
+  const newCart = {
+    store,
+    items: newItems,
+    timestamp: new Date().toISOString(),
+  };
+
+  log("📝 New cart data:", newCart);
+
+  chrome.storage.local.set({ ["uberquickcart:" + store]: newCart }, () => {
+    log(`✅ Saved updated cart for ${store}`, newCart);
+    alert(`Cart for "${store}" updated!`);
+    loadSavedCarts();
+  });
+}
+
+function deleteCart(store) {
+  log(`🗑️ Deleting cart for store: ${store}`);
+  chrome.storage.local.remove("uberquickcart:" + store, () => {
+    log(`✅ Deleted cart for ${store}`);
+    loadSavedCarts();
+  });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  log("📥 Popup loaded.");
+  loadSavedCarts();
+});

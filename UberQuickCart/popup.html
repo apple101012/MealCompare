@@ -5,43 +5,54 @@
     <title>UberQuickCart</title>
     <style>
       body {
-        font-family: Arial, sans-serif;
-        margin: 12px;
+        font-family: sans-serif;
+        padding: 12px;
         width: 300px;
       }
-      .preset-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+      h2 {
+        margin-top: 0;
+      }
+      .cart-block {
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+      }
+      .cart-title {
+        font-weight: bold;
         margin-bottom: 6px;
       }
-      .preset-name {
-        flex-grow: 1;
-        font-weight: bold;
-      }
-      .cart-item {
+      .cart-item-input {
         display: flex;
-        gap: 4px;
-        margin-bottom: 4px;
+        margin-bottom: 5px;
       }
-      .cart-item input {
+      .cart-item-input input {
         flex: 1;
         padding: 4px;
+        margin-right: 4px;
       }
-      button {
+      .save-btn {
+        background: #22c55e;
+        color: white;
+        border: none;
+        padding: 6px 10px;
+        border-radius: 4px;
         cursor: pointer;
+        margin-top: 5px;
+      }
+      .delete-btn {
+        background: #ef4444;
+        color: white;
+        border: none;
+        padding: 6px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-left: 5px;
       }
     </style>
   </head>
-
   <body>
-    <h2>Saved Carts</h2>
-    <ul id="presetList"></ul>
-
-    <hr />
-
-    <div id="lastCartContainer"></div>
-
+    <h2>🗂️ Saved Carts</h2>
+    <div id="cartList"></div>
     <script src="popup.js"></script>
   </body>
 </html>
